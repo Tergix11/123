@@ -51,7 +51,7 @@
                 data-type="{% if 'пляж' in game.location|lower %}Пляж{% else %}Зал{% endif %}">
 
                 <div class="vh-match-image">
-                    <img src="{% if game.image %}{{ game.image.url }}{% else %}/static/main/img/мяч.png{% endif %}" alt="{{ game.title }}" class="vh-match-img">
+                    <img src="{% if game.image %}{{ game.image.url }}{% else %}https://via.placeholder.com/400x200?text=Volleyball{% endif %}" alt="{{ game.title }}" class="vh-match-img">
                 </div>
 
                 <div class="vh-match-tags">
