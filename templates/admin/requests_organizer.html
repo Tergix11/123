@@ -1,0 +1,44 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/styles.css' %}">
+
+<div class="vh-container-1430 mt-10">
+  <h1 class="text-3xl font-bold text-[#6C9AB3] mb-6">Заявки на организатора</h1>
+
+  {% if requests %}
+    <div class="vh-admin-requests">
+      {% for req in requests %}
+      <div class="vh-request-card">
+        <div class="vh-request-header">
+          <h3 class="vh-request-name">{{ req.name }}</h3>
+          <span class="vh-request-date">
+            Отправлено: {{ req.created_at|date:"d.m.Y H:i" }}
+          </span>
+        </div>
+
+        <div class="vh-request-body">
+          <p class="vh-request-contact">
+            {{ req.email }} | {{ req.phone }}
+          </p>
+          <p class="vh-request-message">{{ req.message }}</p>
+        </div>
+
+        <div class="vh-request-actions">
+          <form method="post" action="{% url 'approve_organizer' req.id %}">
+            {% csrf_token %}
+            <button class="vh-btn-approve">Принять</button>
+          </form>
+          <form method="post" action="{% url 'reject_organizer' req.id %}">
+            {% csrf_token %}
+            <button class="vh-btn-reject">Отклонить</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="vh-empty">Нет заявок</p>
+  {% endif %}
+</div>
+{% endblock %}

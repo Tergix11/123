@@ -1,0 +1,22 @@
+{% extends 'main/base.html' %}
+
+{% load static %}
+
+{% block title %}Volleyball Hub — Админ{% endblock %}
+
+{% block branding %}
+<h1 id="site-name" style="color: #ffffff; font-weight: bold;">
+    Volleyball Hub — Админ
+</h1>
+{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'admin_custom.css' %}">
+
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    {% block admin_content %}{% endblock %}
+</div>
+{% endblock %}

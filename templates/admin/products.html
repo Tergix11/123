@@ -1,0 +1,110 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .admin-equip-wrapper {
+        width: 1430px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+
+    .equip-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+
+    .equip-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 18px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        transition: 0.2s;
+    }
+
+    .equip-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+
+    .equip-img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+
+    .equip-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2b4d63;
+        margin-bottom: 6px;
+    }
+
+    .equip-price {
+        font-size: 18px;
+        font-weight: 600;
+        color: #6C9AB3;
+        margin-bottom: 10px;
+    }
+
+    .equip-desc {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 14px;
+    }
+
+    .delete-btn {
+        display: inline-block;
+        padding: 8px 14px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    .delete-btn:hover {
+        background: #c0392b;
+    }
+</style>
+
+<div class="admin-equip-wrapper">
+
+    <h2 class="text-3xl font-bold mb-4" style="color:#6C9AB3;">Экипировка</h2>
+    <div class="h-1 w-40 bg-[#6C9AB3] rounded-full mb-6"></div>
+
+    <div class="equip-grid">
+        {% for item in products %}
+
+        <div class="equip-card">
+
+            {% if item.image %}
+                <img src="/media/{{ item.image }}" class="equip-img">
+            {% else %}
+                <img src="{% static 'main/no-image.png' %}" class="equip-img">
+            {% endif %}
+
+            <p class="equip-name">{{ item.name }}</p>
+            <p class="equip-price">{{ item.price|floatformat:0 }} ₽</p>
+
+            {% if item.description %}
+                <p class="equip-desc">{{ item.description }}</p>
+            {% endif %}
+
+            <a href="{% url 'delete_product' item.id %}" class="delete-btn">
+
+                Удалить
+            </a>
+
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

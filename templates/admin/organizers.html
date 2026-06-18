@@ -1,0 +1,96 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .admin-organizers-wrapper {
+        width: 1430px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+
+    .organizers-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+
+    .organizer-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        transition: 0.2s;
+    }
+
+    .organizer-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+
+    .organizer-name {
+        font-size: 22px;
+        font-weight: 700;
+        color: #2b4d63;
+        margin-bottom: 10px;
+    }
+
+    .organizer-info {
+        font-size: 15px;
+        color: #6b7280;
+        margin-bottom: 6px;
+    }
+
+    .remove-btn {
+        display: inline-block;
+        padding: 8px 14px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.2s;
+        margin-top: 12px;
+    }
+
+    .remove-btn:hover {
+        background: #c0392b;
+    }
+</style>
+
+<div class="admin-organizers-wrapper">
+
+    <h2 class="text-3xl font-bold mb-4" style="color:#6C9AB3;">Организаторы</h2>
+    <div class="h-1 w-40 bg-[#6C9AB3] rounded-full mb-6"></div>
+
+    <div class="organizers-grid">
+        {% for o in organizers %}
+        <div class="organizer-card">
+
+            <p class="organizer-name">{{ o.username }}</p>
+
+            <p class="organizer-info"><b>ID:</b> {{ o.id }}</p>
+            <p class="organizer-info"><b>Email:</b> {{ o.email }}</p>
+
+            {% if o.profiles.phone %}
+                <p class="organizer-info"><b>Телефон:</b> {{ o.profiles.phone }}</p>
+            {% endif %}
+
+           
+
+            <p class="organizer-info"><b>Матчей создано:</b> 
+                {{ o.games_set.count }}
+            </p>
+
+            <a href="{% url 'remove_organizer' o.id %}" class="remove-btn">
+                Удалить роль
+            </a>
+
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

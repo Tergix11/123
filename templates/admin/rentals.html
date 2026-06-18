@@ -1,0 +1,220 @@
+{% extends 'main/base.html' %}
+{% block content %}
+
+<style>
+/* Контейнер */
+.admin-panel-block {
+    width: 1430px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+/* Заголовок */
+.admin-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #6C9AB3;
+    margin-bottom: 10px;
+}
+
+/* Голубая линия под заголовком */
+.title-line {
+    width: 200px;
+    height: 4px;
+    background: #6C9AB3;
+    border-radius: 4px;
+    margin-bottom: 25px;
+}
+
+/* Фильтры */
+.filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.filters a {
+    padding: 8px 18px;
+    background: #FFF2C2;
+    color: #1F2933;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.filters a:hover {
+    background: #ffe89a;
+}
+
+/* Таблица */
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 2px solid #6C9AB3;
+    background: #ffffff;
+    margin-bottom: 20px;
+}
+
+.styled-table th {
+    background: #6C9AB3;
+    color: white;
+    padding: 14px;
+    font-size: 16px;
+    text-align: left;
+}
+
+.styled-table td {
+    padding: 14px;
+    border-bottom: 1px solid #eee;
+    font-size: 15px;
+}
+
+/* Статусы — новый стиль */
+/* Статусы — общий стиль */
+.status {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* Забронирована — мягкий жёлтый */
+.status-booked {
+    background: #FFFBE6;
+    border: 2px solid #F1C40F;
+    color: #8a6d1d;
+}
+
+/* В аренде — зелёный */
+.status-active {
+    background: #E9F9EE;
+    border: 2px solid #2ECC71;
+    color: #1e7e34;
+}
+
+/* Ожидает возврата — ЖЁЛТЫЙ (как ты просила) */
+.status-awaiting {
+    background: #FFF7D6;
+    border: 2px solid #F1C40F;
+    color: #8a6d1d;
+}
+
+/* Завершена — серый */
+.status-completed {
+    background: #F4F4F4;
+    border: 2px solid #95A5A6;
+    color: #555;
+}
+
+/* Отменена — красный */
+.status-cancelled {
+    background: #FDECEA;
+    border: 2px solid #E74C3C;
+    color: #a1261a;
+}
+
+
+
+/* Кнопка */
+.btn-green {
+    background: #6C9AB3;
+    padding: 8px 14px;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s;
+    border: none;
+}
+
+.btn-green:hover {
+    background: #5a8aa0;
+}
+</style>
+
+<div class="admin-panel-block">
+
+    <h1 class="admin-title">Аренда</h1>
+    <div class="title-line"></div>
+
+    <div class="filters">
+        <a href="?">Все</a>
+        <a href="?status=booked">Забронирована</a>
+        <a href="?status=active">В аренде</a>
+        <a href="?status=awaiting_return">Ожидает возврата</a>
+        <a href="?status=completed">Завершена</a>
+        <a href="?status=cancelled">Отменена</a>
+    </div>
+
+    <table class="styled-table">
+        <tr>
+            <th>Пользователь</th>
+            <th>Предмет</th>
+            <th>Период</th>
+            <th>Статус</th>
+            <th>Действие</th>
+        </tr>
+
+        {% for r in rentals %}
+        <tr>
+            <td>{{ r.user.username }}</td>
+            <td>{{ r.item.name }}</td>
+            <td>{{ r.start_datetime }} — {{ r.end_datetime }}</td>
+
+            <!-- НОВЫЕ СТАТУСЫ -->
+            <td>
+                {% if r.status == 'booked' %}
+    <span class="status status-booked">Забронирована</span>
+
+{% elif r.status == 'active' %}
+    <span class="status status-active">В аренде</span>
+
+{% elif r.status == 'awaiting_return' %}
+    <span class="status status-awaiting">Ожидает возврата</span>
+
+{% elif r.status == 'completed' %}
+    <span class="status status-completed">Завершена</span>
+
+{% elif r.status == 'cancelled' %}
+    <span class="status status-cancelled">Отменена</span>
+{% endif %}
+
+            </td>
+
+            <!-- НОВЫЕ ДЕЙСТВИЯ -->
+            <td>
+                <form method="POST" action="{% url 'update_rental_status' r.id %}">
+                    {% csrf_token %}
+
+                    <select name="status" style="
+                        padding:6px 10px;
+                        border-radius:8px;
+                        border:1px solid #ccc;
+                    ">
+                        <option value="booked" {% if r.status == "booked" %}selected{% endif %}>Забронирована</option>
+                        <option value="active" {% if r.status == "active" %}selected{% endif %}>В аренде</option>
+                        <option value="awaiting_return" {% if r.status == "awaiting_return" %}selected{% endif %}>Ожидает возврата</option>
+                        <option value="completed" {% if r.status == "completed" %}selected{% endif %}>Завершена</option>
+                        <option value="cancelled" {% if r.status == "cancelled" %}selected{% endif %}>Отменена</option>
+                    </select>
+
+                    <button type="submit" class="btn-green" style="margin-left:10px;">
+                        Сохранить
+                    </button>
+                </form>
+            </td>
+
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+{% endblock %}

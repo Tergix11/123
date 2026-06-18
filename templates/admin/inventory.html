@@ -1,0 +1,111 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .admin-inventory-wrapper {
+        width: 1430px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+
+    .inventory-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+
+    .inventory-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 18px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        transition: 0.2s;
+    }
+
+    .inventory-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+
+    .inventory-img {
+    width: 100%;
+    height: 260px; /* можно менять */
+    object-fit: contain; /* показываем картинку полностью */
+    background: #f8f9fa; /* светлый фон, чтобы не было пустоты */
+    border-radius: 12px;
+    margin-bottom: 12px;
+    padding: 10px; /* чтобы картинка не прилипала к краям */
+}
+
+
+    .inventory-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2b4d63;
+        margin-bottom: 6px;
+    }
+
+    .inventory-price {
+        font-size: 18px;
+        font-weight: 600;
+        color: #6C9AB3;
+        margin-bottom: 10px;
+    }
+
+    .inventory-desc {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 14px;
+    }
+
+    .delete-btn {
+        display: inline-block;
+        padding: 8px 14px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    .delete-btn:hover {
+        background: #c0392b;
+    }
+</style>
+
+<div class="admin-inventory-wrapper">
+
+    <h2 class="text-3xl font-bold mb-4" style="color:#6C9AB3;">Инвентарь</h2>
+    <div class="h-1 w-40 bg-[#6C9AB3] rounded-full mb-6"></div>
+
+    <div class="inventory-grid">
+        {% for item in inventory %}
+        <div class="inventory-card">
+
+            {% if item.image %}
+                <img src="/media/{{ item.image }}" class="inventory-img">
+            {% else %}
+                <img src="{% static 'main/no-image.png' %}" class="inventory-img">
+            {% endif %}
+
+            <p class="inventory-name">{{ item.name }}</p>
+            <p class="inventory-price">{{ item.price|floatformat:0 }} ₽</p>
+
+            {% if item.description %}
+                <p class="inventory-desc">{{ item.description }}</p>
+            {% endif %}
+
+            <a href="{% url 'delete_inventory' item.id %}" class="delete-btn">
+                Удалить
+            </a>
+
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

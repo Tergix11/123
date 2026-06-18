@@ -1,0 +1,79 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/styles.css' %}">
+
+<div class="vh-container-1470 mt-10">
+
+    <h1 class="text-3xl font-bold text-[#6C9AB3] mb-6">
+        Заказ №{{ order.id }}
+    </h1>
+
+    <div class="vh-order-card">
+
+        <div class="vh-order-header">
+            <span class="vh-order-id">Пользователь: {{ order.user.username }}</span>
+            <span class="vh-order-status status-{{ order.status }}">
+                {{ order.get_status_display }}
+            </span>
+        </div>
+
+        <div class="vh-order-info">
+            <div>Пункт выдачи: <b>{{ order.pvz }}</b></div>
+            <div>Дата: {{ order.created_at|date:"d.m.Y H:i" }}</div>
+            <div>Сумма: <b>{{ order.total_price }} ₽</b></div>
+        </div>
+
+        <h3 class="mt-4 mb-2 font-semibold">Товары в заказе</h3>
+
+        {% if items %}
+            <ul class="vh-order-items-list">
+                {% for item in items %}
+                    <li class="vh-order-item-row">
+                        <span>{{ item.product.name }}</span>
+                        <span>Размер: {{ item.size|default:"-" }}</span>
+                        <span>Кол-во: {{ item.quantity }}</span>
+                        <span>Цена: {{ item.price }} ₽</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="vh-empty">В этом заказе нет товаров</p>
+        {% endif %}
+
+        <h3 class="mt-6 mb-2 font-semibold">Изменить статус</h3>
+
+        <form method="POST" action="{% url 'admin_set_order_status' order.id %}">
+            {% csrf_token %}
+            <div class="flex gap-3 flex-wrap">
+                <button name="status" value="new" class="vh-btn-outline"
+                        {% if order.status == 'new' %}disabled{% endif %}>
+                    Новый
+                </button>
+
+                <button name="status" value="processing" class="vh-btn-outline"
+                        {% if order.status == 'processing' %}disabled{% endif %}>
+                    Готовится
+                </button>
+
+                <button name="status" value="ready" class="vh-btn-outline"
+                        {% if order.status == 'ready' %}disabled{% endif %}>
+                    Готов к выдаче
+                </button>
+
+                <button name="status" value="completed" class="vh-btn-primary"
+                        {% if order.status == 'completed' %}disabled{% endif %}>
+                    Завершён
+                </button>
+            </div>
+        </form>
+
+        <a href="{% url 'admin_orders' %}" class="vh-btn-outline mt-6">
+            ← Назад к списку заказов
+        </a>
+
+    </div>
+
+</div>
+{% endblock %}

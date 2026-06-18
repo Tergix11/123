@@ -1,0 +1,243 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .admin-matches-wrapper {
+        width: 1430px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+
+    .admin-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #6C9AB3;
+        margin-bottom: 10px;
+    }
+
+    .admin-underline {
+        width: 160px;
+        height: 4px;
+        background: #6C9AB3;
+        border-radius: 4px;
+        margin-bottom: 25px;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .admin-table th {
+        background: #f3f6f9;
+        padding: 14px;
+        font-weight: 700;
+        color: #2b4d63;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: left;
+    }
+
+    .admin-table td {
+        padding: 14px;
+        border-bottom: 1px solid #e5e7eb;
+        color: #4b5563;
+    }
+
+    .admin-table tr:hover {
+        background: #f9fafb;
+    }
+
+    .admin-btn-delete {
+        display: inline-block;
+        padding: 8px 14px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    .admin-btn-delete:hover {
+        background: #c0392b;
+    }
+
+    /* Кастомное окно подтверждения */
+    .custom-alert {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .custom-alert-content {
+      background: #FFF3C4;
+      border-radius: 12px;
+      padding: 25px 30px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      font-size: 18px;
+      color: #333;
+      max-width: 320px;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .confirm-btn, .cancel-btn {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .confirm-btn {
+      background: #6C9AB3;
+      color: white;
+    }
+
+    .confirm-btn:hover {
+      background: #547589;
+    }
+
+    .cancel-btn {
+      background: #e5e7eb;
+      color: #333;
+    }
+
+    .cancel-btn:hover {
+      background: #d1d5db;
+    }
+</style>
+
+<div class="admin-matches-wrapper">
+
+    <h2 class="admin-title">Матчи</h2>
+    <div class="admin-underline"></div>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Дата</th>
+                <th>Организатор</th>
+                <th>Участники</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for m in matches %}
+            <tr data-match-id="{{ m.id }}">
+                <td>{{ m.id }}</td>
+                <td>{{ m.title }}</td>
+                <td>{{ m.game_date }} {{ m.game_time }}</td>
+                <td>{{ m.created_by.username }}</td>
+                <td>{{ m.gameparticipants_set.count }}</td>
+
+                <td>
+                    <a href="#"
+                       class="admin-btn-delete"
+                       onclick="showDeleteMatchModal('{{ m.id }}'); return false;">
+                        Удалить
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<!-- Модалка подтверждения -->
+<div id="deleteMatchModal" class="custom-alert">
+  <div class="custom-alert-content">
+    <p><b>Удалить матч?</b><br>Участники будут уведомлены.</p>
+
+    <div style="margin-top:15px; display:flex; justify-content:center; gap:10px;">
+      <button id="confirmDeleteBtn" class="confirm-btn">Удалить</button>
+      <button id="cancelDeleteBtn" class="cancel-btn">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модалка успешного удаления -->
+<div id="adminSuccessAlert" class="custom-alert">
+  <div class="custom-alert-content">
+    <p><b>Матч успешно удалён.</b></p>
+
+    <button id="adminSuccessBtn" class="confirm-btn">ОК</button>
+  </div>
+</div>
+<script>
+let currentMatchId = null;
+let currentRow = null;
+
+// Открытие модалки
+function showDeleteMatchModal(matchId) {
+    currentMatchId = matchId;
+    currentRow = document.querySelector(`tr[data-match-id="${matchId}"]`);
+    document.getElementById("deleteMatchModal").style.display = "flex";
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const modal = document.getElementById("deleteMatchModal");
+    const confirmBtn = document.getElementById("confirmDeleteBtn");
+    const cancelBtn = document.getElementById("cancelDeleteBtn");
+
+    confirmBtn.onclick = function() {
+        if (!currentMatchId) return;
+
+        fetch(`/admin-panel/matches/delete/${currentMatchId}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+
+                modal.style.display = "none";
+
+                if (currentRow) {
+                    currentRow.style.transition = "0.4s";
+                    currentRow.style.opacity = "0";
+                    setTimeout(() => currentRow.remove(), 400);
+                }
+
+                document.getElementById("adminSuccessAlert").style.display = "flex";
+            }
+        });
+    };
+
+    cancelBtn.onclick = function() {
+        modal.style.display = "none";
+        currentMatchId = null;
+    };
+
+    document.getElementById("adminSuccessBtn").onclick = function() {
+        document.getElementById("adminSuccessAlert").style.display = "none";
+    };
+});
+</script>
+
+
+{% endblock %}

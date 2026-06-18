@@ -1,0 +1,49 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'main/styles.css' %}">
+
+<div class="vh-container-1470 mt-10">
+    <h1 class="text-3xl font-bold text-[#6C9AB3] mb-6">
+        Заказы
+    </h1>
+
+    {% if orders %}
+    <table class="vh-admin-table">
+    <thead>
+        <tr>
+            <th>№</th>
+            <th>Пользователь</th>
+            <th>Пункт выдачи</th>
+            <th>Сумма</th>
+            <th>Статус</th>
+            <th>Дата</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.user.username }}</td>
+            <td>{{ order.pvz }}</td>
+            <td>{{ order.total_price }} ₽</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+            <td>
+                <a href="{% url 'admin_order_detail' order.id %}" class="vh-btn-outline-small">
+                    Подробнее
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+    {% else %}
+        <p class="vh-empty">Заказов пока нет</p>
+    {% endif %}
+</div>
+{% endblock %}
